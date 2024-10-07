@@ -187,11 +187,15 @@ export default function Page() {
       </main>
       <footer data-lk-theme="default">
         Hosted on{' '}
-        <a href="https://livekit.io/cloud?ref=meet" rel="noopener">
-          LiveKit Cloud
+        <a href="https://kubernetes.io/" rel="noopener">
+          Kubernetes
         </a>
-        . Source code on{' '}
-        <a href="https://github.com/livekit/meet?ref=meet" rel="noopener">
+        {' '} behind {' '}
+        <a href="https://github.com/l7mp/stunner" rel="noopener">
+          STUNner
+        </a>
+        . Read more on{' '}
+        <a href="https://github.com/l7mp/stunner/tree/main/docs/examples/livekit" rel="noopener">
           GitHub
         </a>
         .
