@@ -2,14 +2,15 @@ import { videoCodecs } from 'livekit-client';
 import { VideoConferenceClientImpl } from './VideoConferenceClientImpl';
 import { isVideoCodec } from '@/lib/types';
 
-export default function CustomRoomConnection(props: {
-  searchParams: {
+export default async function CustomRoomConnection(props: {
+  searchParams: Promise<{
     liveKitUrl?: string;
     token?: string;
     codec?: string;
-  };
+    singlePC?: string;
+  }>;
 }) {
-  const { liveKitUrl, token, codec } = props.searchParams;
+  const { liveKitUrl, token, codec, singlePC } = await props.searchParams;
   if (typeof liveKitUrl !== 'string') {
     return <h2>Missing LiveKit URL</h2>;
   }
@@ -22,7 +23,12 @@ export default function CustomRoomConnection(props: {
 
   return (
     <main data-lk-theme="default" style={{ height: '100%' }}>
-      <VideoConferenceClientImpl liveKitUrl={liveKitUrl} token={token} codec={codec} />
+      <VideoConferenceClientImpl
+        liveKitUrl={liveKitUrl}
+        token={token}
+        codec={codec}
+        singlePeerConnection={singlePC === 'true'}
+      />
     </main>
   );
 }
