@@ -33,6 +33,11 @@ import { useLowCPUOptimizer } from '@/lib/usePerfomanceOptimiser';
 const CONN_DETAILS_ENDPOINT =
   process.env.NEXT_PUBLIC_CONN_DETAILS_ENDPOINT ?? '/api/connection-details';
 const SHOW_SETTINGS_MENU = process.env.NEXT_PUBLIC_SHOW_SETTINGS_MENU == 'true';
+const TURN_TLS_URL = process.env.NEXT_PUBLIC_TURN_TLS_URL ?? '';
+const TURN_USERNAME = process.env.NEXT_PUBLIC_TURN_USERNAME ?? '';
+const TURN_CREDENTIAL = process.env.NEXT_PUBLIC_TURN_CREDENTIAL ?? '';
+const TURN_FIREFOX_ONLY = process.env.NEXT_PUBLIC_TURN_FIREFOX_ONLY == 'true';
+const TURN_STATIC = process.env.NEXT_PUBLIC_TURN_STATIC == 'true';
 
 export function PageClientImpl(props: {
   roomName: string;
@@ -102,6 +107,12 @@ function VideoConferenceComponent(props: {
   const e2eeEnabled = !!(e2eePassphrase && worker);
 
   const [e2eeSetupComplete, setE2eeSetupComplete] = React.useState(false);
+  const isFirefox = React.useMemo(() => {
+    if (typeof navigator === 'undefined') {
+      return false;
+    }
+    return /firefox/i.test(navigator.userAgent);
+  }, []);
 
   const roomOptions = React.useMemo((): RoomOptions => {
     let videoCodec: VideoCodec | undefined = props.options.codec ? props.options.codec : 'vp9';
@@ -158,10 +169,29 @@ function VideoConferenceComponent(props: {
   }, [e2eeEnabled, room, e2eePassphrase]);
 
   const connectOptions = React.useMemo((): RoomConnectOptions => {
+    const shouldUseTurn =
+      TURN_STATIC &&
+      TURN_TLS_URL.length > 0 &&
+      TURN_USERNAME.length > 0 &&
+      TURN_CREDENTIAL.length > 0 &&
+      (!TURN_FIREFOX_ONLY || isFirefox);
+
     return {
       autoSubscribe: true,
+      rtcConfig: shouldUseTurn
+        ? {
+            iceTransportPolicy: 'relay',
+            iceServers: [
+              {
+                urls: TURN_TLS_URL,
+                username: TURN_USERNAME,
+                credential: TURN_CREDENTIAL,
+              },
+            ],
+          }
+        : undefined,
     };
-  }, []);
+  }, [isFirefox]);
 
   React.useEffect(() => {
     room.on(RoomEvent.Disconnected, handleOnLeave);

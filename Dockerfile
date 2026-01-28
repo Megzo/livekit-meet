@@ -4,8 +4,8 @@ WORKDIR /app
 
 COPY . .
 
-RUN yarn install
+RUN npm install -g pnpm@10.18.2 && pnpm install
 
-RUN yarn build
+RUN pnpm build
 
-ENTRYPOINT ["yarn", "dev"]
+ENTRYPOINT ["pnpm", "dev"]
